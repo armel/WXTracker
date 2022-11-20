@@ -21,130 +21,107 @@ void setup() {
 
     // Draw Line
     display.drawLine(0, 40, 240, 40, WHITE);  // Fill the screen with black (to clear the screen). 
+    display.drawLine(0, 85, 240, 85, WHITE);  // Fill the screen with black (to clear the screen). 
 }
 
 void loop() {
+    boolean refresh = false;
+
     static uint16_t iteration = 0;
-    static uint8_t alternance = 0;
-    float data[3] = { 0 };
+    static uint8_t range = 0;
+
+    char str_min[10];
+    char str_max[10];
+
+    float min, max;
+
+    getButton();
+
+    if(btnA == 1)
+    {
+        range = (range++ < (NUMBER_OF_RANGES - 1)) ? range : 0;
+        refresh = true;
+    }
 
     while (!bme.begin(0x76)) {
         Serial.println("Could not find a valid BMP280 sensor, check wiring!");
     }
-    data[0] = dht12.readTemperature();    // Store the temperature obtained from dht12.
-    data[1] = dht12.readHumidity();       // Store the humidity obtained from dht12.
-    data[2] = bme.readPressure();    // Stores the pressure gained by BMP.
+    data[0] = dht12.readTemperature();  // Store the temperature obtained from dht12.
+    data[1] = dht12.readHumidity();     // Store the humidity obtained from dht12.
+    data[2] = bme.readPressure() / 100; // Stores the pressure gained by BMP.
 
     //display.setCursor(0, 0);
     //display.printf("ENV (DHT12 / BMP280)\n\n\n\nTEMPERATURE: %2.1f  \n\nHUMIDITE: %2.0f %%  \n\nPRESSION: %2.0f", tmp, hum, pressure);
 
-    if(iteration % 15 == 0)          // 1 hour 
+    for(uint8_t i = 0; i < NUMBER_OF_RANGES; i++)
     {
-        Serial.printf("%d %d\n", iteration, 15);
-        shift(measure_t[0], data[0], indice[0]);
-        shift(measure_h[0], data[1], indice[0]);
-        shift(measure_p[0], data[2], indice[0]);
-
-        if(indice[0] < NUMBER_OF_MEASURE)
+        if(iteration % periodicity_time[i] == 0)          // 1 hour 
         {
-            indice[0]++;
+            Serial.printf("%d %d\n", iteration, periodicity_time[i]);
+            save(i);
+            if(range == i) refresh = true;
         }
     }
-    /*
-    if(iteration % 30 == 0)     // 2 hours 
+
+    //Serial.printf("--> %d %d %d %d\n", btnA, btnB, range, refresh);
+
+    // Refresh
+    if(refresh == true)
     {
-        Serial.printf("%d %d\n", iteration, 30);
-        shift(measure_t[1], data[0], indice[1]);
-        shift(measure_h[1], data[1], indice[1]);
-        shift(measure_p[1], data[2], indice[1]);
-
-        if(indice[1] < NUMBER_OF_MEASURE)
+        for(uint8_t i = 0; i < NUMBER_OF_TYPES; i++)
         {
-            indice[1]++;
+            switch(i)
+            {
+                case 0:
+                display.setTextColor(TFT_ORANGE, TFT_BLACK);
+                break;
+
+                case 1:
+                display.setTextColor(TFT_SKYBLUE, TFT_BLACK);
+                break;
+
+                case 2:
+                display.setTextColor(TFT_WHITE, TFT_BLACK);
+                break;
+            }
+
+            // Value
+            display.setFont(&YELLOWCRE8pt7b);
+
+            display.setTextPadding(240);
+            display.setTextDatum(TL_DATUM);
+            display.drawString(types[i], 0, 6 + (45 * i));
+            
+            display.setTextPadding(0);
+            display.setTextDatum(TR_DATUM);
+            display.drawFloat(data[i], 1, 240, 6 + (45 * i));
+
+            // Range
+            display.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+            display.setFont(&tahoma8pt7b);
+            display.setTextPadding(240);
+            display.setTextDatum(TL_DATUM);
+
+            display.drawString(String(periodicity_name[range]) + " (" + String(indice[i][range]) + ")", 0, 22 + (45 * i));
+
+            // Min and Max
+            display.setTextPadding(0);
+            display.setTextDatum(TR_DATUM);
+
+            min = measures_min[i][range];
+            max = measures_max[i][range];
+            sprintf(str_min, "%2.1f", min);
+            sprintf(str_max, "%2.1f", max);
+
+            display.drawString(String(str_min) + " - " + String(str_max), 240, 22 + (45 * i));
         }
+        refresh = false;
     }
-    if(iteration % 60 == 0)     // 4 hours
-    {
-        Serial.printf("%d %d\n", iteration, 60);
-        shift(measure_t[2], data[0], indice[2]);
-        shift(measure_h[2], data[1], indice[2]);
-        shift(measure_p[2], data[2], indice[2]);
-
-        if(indice[2] < NUMBER_OF_MEASURE)
-        {
-            indice[2]++;
-        }
-    }
-    if(iteration % 120 == 0)    // 8 hours
-    {
-        Serial.printf("%d %d\n", iteration, 120);
-
-        shift(measure_t[3], data[0], indice[3]);
-        shift(measure_h[3], data[1], indice[3]);
-        shift(measure_p[3], data[2], indice[3]);
-
-        if(indice[3] < NUMBER_OF_MEASURE)
-        {
-            indice[3]++;
-        }
-    }
-    if(iteration % 360 == 0)    // 24 hours
-    {
-        Serial.printf("%d %d\n", iteration, 360);
-
-        shift(measure_t[4], data[0], indice[4]);
-        shift(measure_h[4], data[1], indice[4]);
-        shift(measure_p[4], data[2], indice[4]);
-
-        if(indice[4] < NUMBER_OF_MEASURE)
-        {
-            indice[4]++;
-        }
-    }
-    */
 
     iteration++;
     if(iteration == 15 * 4 * 60 * 24)
     {
         iteration = 0;
-    }
-
-    // Value
-    display.setTextColor(TFT_FRONT, TFT_BACK);
-    display.setFont(&YELLOWCRE8pt7b);
-
-    display.setTextPadding(240);
-    display.setTextDatum(TL_DATUM);
-    display.drawString(measures[alternance], 0, 6);
-    
-    display.setTextPadding(0);
-    display.setTextDatum(TR_DATUM);
-    display.drawFloat(data[alternance], 1, 240, 6);
-
-    // Min and Max
-
-    display.setTextColor(TFT_FRONT, TFT_BACK);
-    display.setFont(&YELLOWCRE8pt7b);
-
-    display.setTextPadding(240);
-    display.setTextDatum(TR_DATUM);
-    switch(alternance)
-    {
-        case 0:
-            display.drawString(extrem(measure_t[0]), 240, 22);
-            break;
-        case 1:
-            display.drawString(extrem(measure_h[0]), 240, 22);
-            break;
-        case 2:
-            display.drawString(extrem(measure_p[0]), 240, 22);
-            break;
-    }
-
-    alternance++;
-    if(alternance == 3)
-    {
-        alternance = 0;
     }
 
     delay(1000);

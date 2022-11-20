@@ -6,8 +6,9 @@
 #include <Adafruit_BMP280.h>
 #include "Adafruit_Sensor.h"
 
-#define NUMBER_OF_RANGE 5
-#define NUMBER_OF_MEASURE 4
+#define NUMBER_OF_TYPES 3
+#define NUMBER_OF_RANGES 6
+#define NUMBER_OF_MEASURES 240
 
 M5GFX &display(M5.Lcd);
 
@@ -17,10 +18,15 @@ Adafruit_BMP280 bme;
 uint16_t TFT_BACK   = 0x0000;
 uint16_t TFT_FRONT  = 0xffff;
 
-const char *measures[] = {"TEMPERATURE", "HUMIDITY", "PRESSURE"};
+int8_t btnA, btnB;
 
-uint16_t indice[NUMBER_OF_RANGE] = { 0 };
+const char *types[] = {"TEMPERATURE", "HUMIDITY", "PRESSURE"};
+const char *periodicity_name[] = {"1s-4m", "15s-1h", "30s-2h", "1m-4h", "2m-8h", "6m-8h"};
+uint16_t periodicity_time[] = {1, 15, 30, 60, 120, 240};
 
-float measure_t[NUMBER_OF_RANGE][NUMBER_OF_MEASURE] = { 0 };
-float measure_h[NUMBER_OF_RANGE][NUMBER_OF_MEASURE] = { 0 };
-float measure_p[NUMBER_OF_RANGE][NUMBER_OF_MEASURE] = { 0 };
+uint16_t indice[NUMBER_OF_TYPES][NUMBER_OF_RANGES] = { 0 };
+
+float data[NUMBER_OF_TYPES] = { 0 };
+float measures[NUMBER_OF_TYPES][NUMBER_OF_RANGES][NUMBER_OF_MEASURES] = { 0 };
+float measures_min[NUMBER_OF_TYPES][NUMBER_OF_RANGES] = { 1000000 };
+float measures_max[NUMBER_OF_TYPES][NUMBER_OF_RANGES] = { 0 };
