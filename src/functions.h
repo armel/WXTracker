@@ -1,6 +1,7 @@
 // Copyright (c) F4HWN Armel. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+// Shift measures collected
 void shift(float *measure, float measure_new, uint16_t indice)
 {
     if(indice < NUMBER_OF_MEASURES)
@@ -31,6 +32,7 @@ float mapFloat(float x, float in_min, float in_max, float out_min, float out_max
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+// Get min measure
 float getMin(float *measure, uint16_t indice)
 {
     float min = 1000000;
@@ -45,6 +47,7 @@ float getMin(float *measure, uint16_t indice)
     return min;
 }
 
+// Get max measure
 float getMax(float *measure, uint16_t indice)
 {
     float max = 0;
@@ -59,6 +62,7 @@ float getMax(float *measure, uint16_t indice)
     return max;
 }
 
+// Collect measures
 void save(uint8_t range)
 {
     for(uint8_t i = 0; i < NUMBER_OF_TYPES; i++)
@@ -80,6 +84,7 @@ void save(uint8_t range)
 
 }
 
+// Manage buttons
 void getButton()
 {
     M5.update();

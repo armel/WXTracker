@@ -17,7 +17,7 @@ void setup() {
     display.begin();
     display.clear();
     display.setRotation(3);  // Rotate the screen. 
-    display.setFont(&YELLOWCRE8pt7b);
+    display.fillScreen(TFT_BACK);
 
     // Draw Line
     display.drawLine(0, 40, 240, 40, WHITE);  // Fill the screen with black (to clear the screen). 
@@ -73,15 +73,15 @@ void loop() {
             switch(i)
             {
                 case 0:
-                display.setTextColor(TFT_ORANGE, TFT_BLACK);
+                display.setTextColor(TFT_ORANGE, TFT_BACK);
                 break;
 
                 case 1:
-                display.setTextColor(TFT_SKYBLUE, TFT_BLACK);
+                display.setTextColor(TFT_SKYBLUE, TFT_BACK);
                 break;
 
                 case 2:
-                display.setTextColor(TFT_WHITE, TFT_BLACK);
+                display.setTextColor(TFT_WHITE, TFT_BACK);
                 break;
             }
 
@@ -97,7 +97,7 @@ void loop() {
             display.drawFloat(data[i], 1, 240, 6 + (45 * i));
 
             // Range
-            display.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+            display.setTextColor(TFT_LIGHTGREY, TFT_BACK);
             display.setFont(&tahoma8pt7b);
             display.setTextPadding(240);
             display.setTextDatum(TL_DATUM);
